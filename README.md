@@ -12,7 +12,7 @@ De repository bevat tevens een voorbeeld n8n-workflow.
 ```
 .
 ├─ docker-compose.yml                 # Minimalistische stack: alleen de portscan-service
-├─ docker-compose-withn8n.json        # Uitgebreide stack: n8n + Postgres + portscan-service
+├─ docker-compose-n8n.yml             # Uitgebreide stack: n8n + Postgres
 ├─ .env.example.n8n                   # Voorbeeld .env voor de n8n-stack
 ├─ portscan-service/
 │  ├─ Dockerfile                      # Node 18 + nmap + API
@@ -68,7 +68,7 @@ services:
 Maak een `.env` aan:
 
 ```env
-PORTS=8089
+PORTS=8080
 ```
 
 Start:
@@ -122,41 +122,21 @@ Voorbeeldrequest:
 
 De repository bevat drie elementen:
 
-- `docker-compose-withn8n.json`
+- `docker-compose-n8n.yml`
 - `.env.example.n8n`
 - `n8n/dnsscanner.json` (workflow)
 
 ### Uitgebreide stack
 
-`docker-compose-withn8n.json` bevat:
+`docker-compose-n8n.yml` bevat:
 
 - n8n
 - PostgreSQL
-- portscan-service
-
-Voorbeeld `.env`:
-
-```env
-DB_TYPE=postgresdb
-DB_POSTGRESDB_HOST=db
-DB_POSTGRESDB_PORT=25432
-DB_POSTGRESDB_USER=n8n
-DB_POSTGRESDB_PASSWORD=...
-DB_POSTGRESDB_DATABASE=n8n
-
-N8N_HOST=n8n.example.com
-WEBHOOK_URL=https://n8n.example.com/
-N8N_EDITOR_BASE_URL=https://n8n.example.com/
-N8N_PORT=5678
-
-N8NDATA=/docker/n8n/n8n_data
-POSTGRESSDATA=/docker/n8n/postgres_data
-```
 
 Starten:
 
 ```bash
-docker compose -f docker-compose-withn8n.json --env-file .env up -d
+docker compose -f docker-compose-n8n.yml --env-file .env up -d
 ```
 
 ### Workflow
