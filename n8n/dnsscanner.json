@@ -1,0 +1,158 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "3e7fa0bd-21b3-454a-995b-90f5e89af3ea",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "host",
+              "value": "scanme.nmap.org"
+            },
+            {
+              "name": "ports",
+              "value": "22,80,443"
+            },
+            {
+              "name": "flags",
+              "value": "-T4 -sS"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5d3958ed-6649-45d6-8ecb-48f212a44aa4",
+      "name": "Set: Target / Ports / Flags",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        384,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://IPORDNS:8089/v1/scan",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "host",
+              "value": "={{ $json.host }}"
+            },
+            {
+              "name": "ports",
+              "value": "={{ $json.ports }}"
+            },
+            {
+              "name": "flags",
+              "value": "={{ $json.flags }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          },
+          "timeout": 300000
+        }
+      },
+      "id": "7b4764d3-0f66-4adf-8813-30b81a7a0eba",
+      "name": "HTTP Request: nmap-api /scan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        704,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pak de mogelijke plekken waar de HTTP-node de body zet\nconst root =\n  ($json && $json.openPorts)         ? $json :\n  ($json?.body && $json.body.openPorts) ? $json.body :\n  ($json?.data && $json.data.openPorts) ? $json.data :\n  $json;\n\n// Als er per ongeluk XML->JSON binnenkomt, root kan nmaprun bevatten; dan kort-circuiten we:\nif (root?.nmaprun) {\n  const hostObj = Array.isArray(root.nmaprun?.host) ? root.nmaprun.host[0] : (root.nmaprun?.host || {});\n  const addr = hostObj?.address?.$?.addr || (Array.isArray(hostObj?.address) ? hostObj.address[0]?.$?.addr : 'unknown');\n  let ports = hostObj?.ports?.port ?? [];\n  if (!Array.isArray(ports)) ports = [ports].filter(Boolean);\n  const open = ports\n    .filter(p => p?.state?.$?.state === 'open')\n    .map(p => ({\n      host: addr,\n      proto: p?.$?.protocol || null,\n      port: Number(p?.$?.portid ?? NaN),\n      service: p?.service?.$?.name ?? null,\n    }));\n  const lines = open.map(o => `${o.port}/${o.proto || ''}${o.service ? ` (${o.service})` : ''}`.trim());\n  return [{\n    json: {\n      host: addr,\n      count: open.length,\n      openPorts: open,\n      summaryText: open.length ? `Open ports on ${addr}:\\n` + lines.join('\\n') : `No open ports detected on ${addr}.`,\n    }\n  }];\n}\n\n// Standaard JSON (Optie B-service)\nconst host = root?.host || $json?.host || 'unknown';\nlet open = root?.openPorts ?? [];\nif (!Array.isArray(open)) open = open ? [open] : [];\n\nconst lines = open.map(p => `${p.port}/${p.proto || ''}${p.service ? ` (${p.service})` : ''}`.trim());\nreturn [{\n  json: {\n    host,\n    count: open.length,\n    openPorts: open,\n    summaryText: open.length ? `Open ports on ${host}:\\n` + lines.join('\\n') : `No open ports detected on ${host}.`,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "257b121c-7e4f-405f-9e8b-89d54056a07a",
+      "name": "Normalize scan result"
+    },
+    {
+      "parameters": {
+        "jsCode": "const ports = Array.isArray($json.openPorts) ? $json.openPorts : [];\n\nreturn ports.map(p => ({\n  json: {\n    host: p.host,\n    port: p.port,\n    proto: p.proto,\n    service: p.service\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        0
+      ],
+      "id": "cecf8c2c-3145-444e-9188-6bdbe21f207d",
+      "name": "Explode open ports"
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set: Target / Ports / Flags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Target / Ports / Flags": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request: nmap-api /scan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request: nmap-api /scan": {
+      "main": [
+        [
+          {
+            "node": "Normalize scan result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize scan result": {
+      "main": [
+        [
+          {
+            "node": "Explode open ports",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "7859ee5e4f601bf3b251b969e971a5355bce9e6f563c9ff22c6866e77473a0a6"
+  }
+}
