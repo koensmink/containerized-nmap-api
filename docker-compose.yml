@@ -1,0 +1,8 @@
+services:
+  portscan-service:
+    build: ./portscan-service
+    ports:
+      - "${PORTS}:8080"
+    cap_add:
+      - NET_RAW  # alleen nodig voor -sS/ICMP; anders flags: -Pn -sT
+    restart: unless-stopped
