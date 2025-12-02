@@ -146,9 +146,3 @@ docker compose -f docker-compose-n8n.yml --env-file .env up -d
 1. Inputparameters instelt (`host`, `ports`, `flags`)
 2. De API aanroept via `POST /v1/scan`
 3. De output verwerkt en verder gebruikt binnen n8n
-
----
-
-## Licentie
-
-Voeg hier een licentie toe indien gewenst (bijv. MIT of Apache‑2.0).
