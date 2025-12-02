@@ -44,7 +44,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://IPORDNS:8089/v1/scan",
+        "url": "http://IPORDNS:8080/v1/scan",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
