@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   n8n:
     image: n8nio/n8n:latest
@@ -17,31 +19,27 @@ services:
       - WEBHOOK_URL=${WEBHOOK_URL}
       - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL}
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      # consider enabling basic auth in production:
+      # - N8N_BASIC_AUTH_ACTIVE=true
+      # - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
+      # - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
     ports:
       - "${N8N_PORT}:5678"
     volumes:
-      - ${N8NDATA}:/home/node/.n8n
+      - n8n_data:/home/node/.n8n
     restart: unless-stopped
 
   postgres:
     image: postgres:latest
     container_name: postgres
     ports:
-      - "${DB_POSTGRESDB_PORT}:25432"
+      - "${DB_POSTGRESDB_PORT}:5432"
     environment:
       POSTGRES_DB: ${DB_POSTGRESDB_DATABASE}
       POSTGRES_USER: ${DB_POSTGRESDB_USER}
       POSTGRES_PASSWORD: ${DB_POSTGRESDB_PASSWORD}
-      PGPORT: ${DB_POSTGRESDB_PORT}
     volumes:
-      - ${POSTGRESSDATA}:/var/lib/postgres/data
-
-  portscan-service:
-    build: ./portscan-service
-    ports:
-      - "8080"
-    cap_add:
-      - NET_RAW  # alleen nodig voor -sS/ICMP; anders flags: -Pn -sT
+      - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
 volumes:
