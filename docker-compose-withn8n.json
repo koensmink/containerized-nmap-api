@@ -36,6 +36,14 @@ services:
     volumes:
       - ${POSTGRESSDATA}:/var/lib/postgres/data
 
+  portscan-service:
+    build: ./portscan-service
+    ports:
+      - "8080"
+    cap_add:
+      - NET_RAW  # alleen nodig voor -sS/ICMP; anders flags: -Pn -sT
+    restart: unless-stopped
+
 volumes:
   n8n_data:
     name: n8n_data
