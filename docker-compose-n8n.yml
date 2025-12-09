@@ -3,7 +3,7 @@ services:
     image: n8nio/n8n:latest
     container_name: n8n
     environment:
-      - DB_TYPE=${DB_TYPE}
+      - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=${DB_POSTGRESDB_HOST}
       - DB_POSTGRESDB_PORT=${DB_POSTGRESDB_PORT}
       - DB_POSTGRESDB_USER=${DB_POSTGRESDB_USER}
@@ -14,31 +14,27 @@ services:
       - NODE_ENV=production
       - N8N_SECURE_COOKIE=false
       - N8N_HOST=${N8N_HOST}
-      - WEBHOOK_URL=${WEBHOOK_URL}
+      - WEBHOOK_URL=$
       - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL}
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
-      # consider enabling basic auth in production:
-      # - N8N_BASIC_AUTH_ACTIVE=true
-      # - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
-      # - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
     ports:
       - "${N8N_PORT}:5678"
     volumes:
-      - n8n_data:/home/node/.n8n
+      - /docker/data/n8n-app:/home/node/.n8n
     restart: unless-stopped
 
   postgres:
     image: postgres:latest
     container_name: postgres
     ports:
-      - "${DB_POSTGRESDB_PORT}:5432"
+      - "${DB_POSTGRESDB_PORT}:25432"
     environment:
       POSTGRES_DB: ${DB_POSTGRESDB_DATABASE}
       POSTGRES_USER: ${DB_POSTGRESDB_USER}
       POSTGRES_PASSWORD: ${DB_POSTGRESDB_PASSWORD}
+      PGPORT: ${DB_POSTGRESDB_PORT}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+      - /data/docker/n8n/postgres:/var/lib/postgres/data
 
 volumes:
   n8n_data:
