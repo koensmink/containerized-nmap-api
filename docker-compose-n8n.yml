@@ -20,7 +20,7 @@ services:
     ports:
       - "${N8N_PORT}:5678"
     volumes:
-      - /docker/data/n8n-app:/home/node/.n8n
+      - n8n_data:/home/node/.n8n
     restart: unless-stopped
 
   postgres:
@@ -34,7 +34,7 @@ services:
       POSTGRES_PASSWORD: ${DB_POSTGRESDB_PASSWORD}
       PGPORT: ${DB_POSTGRESDB_PORT}
     volumes:
-      - /data/docker/n8n/postgres:/var/lib/postgres/data
+      - postgres_data:/var/lib/postgres/data
 
 volumes:
   n8n_data:
