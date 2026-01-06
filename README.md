@@ -116,33 +116,3 @@ Voorbeeldrequest:
   "flags": "-T4"
 }
 ```
----
-
-## n8n-integratie
-
-De repository bevat drie elementen:
-
-- `docker-compose-n8n.yml`
-- `.env.example.n8n`
-- `n8n/dnsscanner.json` (workflow)
-
-### Uitgebreide stack
-
-`docker-compose-n8n.yml` bevat:
-
-- n8n
-- PostgreSQL
-
-Starten:
-
-```bash
-docker compose -f docker-compose-n8n.yml --env-file .env up -d
-```
-
-### Workflow
-
-`n8n/dnsscanner.json` bevat een workflow die:
-
-1. Inputparameters instelt (`host`, `ports`, `flags`)
-2. De API aanroept via `POST /v1/scan`
-3. De output verwerkt en verder gebruikt binnen n8n
