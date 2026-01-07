@@ -11,14 +11,10 @@ De service biedt een eenvoudige HTTP-endpoint die een `nmap`-scan uitvoert en he
 ```
 .
 ├─ docker-compose.yml                 # Minimalistische stack: alleen de portscan-service
-├─ docker-compose-n8n.yml             # Uitgebreide stack: n8n + Postgres
-├─ .env.example.n8n                   # Voorbeeld .env voor de n8n-stack
 ├─ portscan-service/
 │  ├─ Dockerfile                      # Node 18 + nmap + API
 │  ├─ index.js                        # Express API + nmap-wrapper
 │  └─ package.json                    # Node-afhankelijkheden
-└─ n8n/
-   └─ dnsscanner.json                 # Voorbeeldworkflow die de API aanroept
 ```
 
 ---
