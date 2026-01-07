@@ -3,7 +3,6 @@
 
 Een compacte containerized API bovenop `nmap`.  
 De service biedt een eenvoudige HTTP-endpoint die een `nmap`-scan uitvoert en het resultaat als JSON retourneert.  
-De repository bevat tevens een voorbeeld n8n-workflow.
 
 ---
 
